@@ -1,4 +1,4 @@
-import { FileVideo, Upload, Wand2 } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 import { Header } from './components/Header';
 import { Textarea } from './components/ui/textarea';
 import { Separator } from './components/ui/separator';
@@ -7,8 +7,15 @@ import { Button } from './components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
 import { Slider } from './components/ui/slider';
 import { VideoInputForm } from './components/video-input-form';
+import { PromptSelect } from './components/prompt-select';
 
 export function App() {
+
+
+  const handlePromptSelected = (template: String) => {
+    console.log(template);
+  }
+
   return (
       <div className='min-h-screen flex flex-col'>
         <Header/>
@@ -41,22 +48,7 @@ export function App() {
                 <Label>
                   Prompt
                 </Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Selecione um prompt...'/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='title'>
-                      Título do Youtube
-                    </SelectItem>
-                    <SelectItem value='description'>
-                      Descrição do YouTube
-                    </SelectItem>
-                    <SelectItem disabled value='soon'>
-                      Criar novo (em breve)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <PromptSelect onPromptSelected={handlePromptSelected}/>
               </div>
 
               <div className='space-y-2'>
