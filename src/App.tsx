@@ -23,7 +23,7 @@ export function App() {
     completion,
     isLoading,
   } = useCompletion({
-    api: 'https://upload-ai-api-116e.onrender.com/ai/complete',
+    api: 'https://facilita-ai-api.onrender.com/ai/complete',
     body: {
       videoId,
       temperature,
