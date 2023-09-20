@@ -2,15 +2,16 @@ import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { FileVideo, Upload, Video, Youtube } from "lucide-react";
 
 import { Label } from "./ui/label";
-import { Input } from './ui/input';
+import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 
-import { fetchMP3Link } from '../lib/api';
+import { fetchMP3Link } from "../lib/api";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/api";
+import Swal from 'sweetalert2'
 
 import {
   Tabs,
@@ -18,6 +19,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import { AlertMessage } from "./alert-message";
 
 type Status = "waiting" | "converting" | "uploading" | "generating" | "success";
 
@@ -35,7 +37,8 @@ interface VideoInputFormProps {
 export function VideoInputForm(props: VideoInputFormProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>("waiting");
-  const [youtubeUrl, setYoutubeUrl] = useState<string>('');
+  const [youtubeUrl, setYoutubeUrl] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,84 +99,117 @@ export function VideoInputForm(props: VideoInputFormProps) {
   };
 
   const extractYouTubeVideoId = (url: string) => {
-    const pattern = /^(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+    const pattern =
+      /^(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
     const match = url.match(pattern);
     return match ? match[1] : null;
   };
 
   const handleUploadVideo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     const prompt = promptInputRef.current?.value;
-  
+
     if (!videoFile && !youtubeUrl) {
-      alert('Selecione um vídeo ou insira um link do YouTube válido.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Selecione um vídeo ou insira um link do YouTube válido.',
+        background: '#1F2937',
+        color: '#FFFFFF'
+      });
+      setStatus('waiting')
       return;
     }
-    
-    console.log('Starting video conversion');
 
-    setStatus('converting');
-  
+    setShowAlert(true);
+
+    console.log("Starting video conversion");
+
+    setStatus("converting");
+
     let audioFile;
-  
+
     if (youtubeUrl) {
       if (!isValidYouTubeUrl(youtubeUrl)) {
-        alert('Insira um link válido do YouTube.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Insira um link válido do YouTube.',
+          background: '#1F2937',
+          color: '#FFFFFF'
+        });
+        setStatus('waiting')
         return;
       }
-  
+
       try {
         const videoId = extractYouTubeVideoId(youtubeUrl);
         if (videoId) {
           const mp3Link = await fetchMP3Link(videoId);
           const response = await fetch(mp3Link);
           const mp3Data = await response.blob();
-  
-          audioFile = new File([mp3Data], 'audio.mp3', {
-            type: 'audio/mpeg',
+
+          audioFile = new File([mp3Data], "audio.mp3", {
+            type: "audio/mpeg",
           });
-  
-          console.log('Áudio do YouTube baixado com sucesso.');
+
+          console.log("Áudio do YouTube baixado com sucesso.");
         } else {
-          alert('Link do YouTube inválido.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Link do YouTube inválido.',
+            background: '#1F2937',
+            color: '#FFFFFF'
+          });
+          setStatus("waiting")
         }
       } catch (error) {
-        console.error('Erro ao buscar o link do MP3:', error);
-        alert('Ocorreu um erro ao buscar o link do MP3.');
+        console.error("Erro ao buscar o link do MP3:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Ocorreu um erro ao buscar o link do MP3.',
+          background: '#1F2937',
+          color: '#FFFFFF'
+        });
+        setStatus('waiting')
       }
     } else if (videoFile) {
       audioFile = await convertVideoToAudio(videoFile);
     }
-    console.log('Audio conversion completed');
+    console.log("Audio conversion completed");
     if (audioFile) {
       const data = new FormData();
-  
-      data.append('file', audioFile);
-  
-      console.log('Uploading audio file');
 
-      setStatus('uploading');
-  
-      const response = await api.post('/videos', data);
+      data.append("file", audioFile);
 
-      console.log('Upload completed');
-  
+      console.log("Uploading audio file");
+
+      setStatus("uploading");
+
+      const response = await api.post("/videos", data);
+
+      console.log("Upload completed");
+
       const videoId = response.data.video.id;
-  
-      setStatus('generating');
 
-      console.log('Generating transcription');
-  
+      setStatus("generating");
+
+      console.log("Generating transcription");
+
       await api.post(`/videos/${videoId}/transcription`, {
         prompt,
       });
 
-      console.log('Transcription completed');
-  
-      setStatus('success');
-  
+      console.log("Transcription completed");
+
+      setStatus("success");
+
       props.onVideoUploaded(videoId);
+
+      setShowAlert(false);
     }
   };
 
@@ -232,17 +268,18 @@ export function VideoInputForm(props: VideoInputFormProps) {
           />
         </TabsContent>
         <TabsContent value="YouTube">
-        <Input
-          placeholder="Cole o link de um vídeo do Youtube aqui!"
-          type="url"
-          className="w-full h-10"
-          value={youtubeUrl}
-          onChange={handleInputChange}
-        />
-        <span className='text-xs text-muted-foreground italic mt-1 flex flex-col gap-1'>
-          <p>Para melhor exeriência use vídeos de até 10min!</p>
-          Esse processo pode demorar alguns segundos ou minutos dependendo do tamanho do vídeo.
-        </span>
+          <Input
+            placeholder="Cole o link de um vídeo do Youtube aqui!"
+            type="url"
+            className="w-full h-10"
+            value={youtubeUrl}
+            onChange={handleInputChange}
+          />
+          <span className="text-xs text-muted-foreground italic mt-1 flex flex-col gap-1">
+            <p>Para melhor exeriência use vídeos de até 10min!</p>
+            Esse processo pode demorar alguns segundos ou minutos dependendo do
+            tamanho do vídeo.
+          </span>
         </TabsContent>
       </Tabs>
 
@@ -276,6 +313,8 @@ export function VideoInputForm(props: VideoInputFormProps) {
           statusMessage[status]
         )}
       </Button>
+
+      {showAlert && <AlertMessage status={status} />}
     </form>
   );
 }
