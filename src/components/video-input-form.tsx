@@ -84,11 +84,14 @@ export function VideoInputForm(props: VideoInputFormProps) {
 
   const handlePlayAudio = () => {
     if (audioElementRef.current) {
-      audioElementRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error("Erro ao reproduzir áudio:", error);
-      });
+      audioElementRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((error) => {
+          console.error("Erro ao reproduzir áudio:", error);
+        });
     }
   };
 
@@ -97,7 +100,7 @@ export function VideoInputForm(props: VideoInputFormProps) {
       audioElementRef.current.pause();
       setIsPlaying(false);
     }
-  };  
+  };
 
   const convertVideoToAudio = async (video: File) => {
     console.log("Convert started.");
