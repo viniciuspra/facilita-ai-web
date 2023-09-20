@@ -1,5 +1,14 @@
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
-import { FileVideo, Upload, Video, Youtube } from "lucide-react";
+import {
+  FileAudio2,
+  FileVideo,
+  FileVolume,
+  Pause,
+  Play,
+  Upload,
+  Video,
+  Youtube,
+} from "lucide-react";
 
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -11,7 +20,7 @@ import { fetchMP3Link } from "../lib/api";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/api";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 import {
   Tabs,
@@ -36,17 +45,20 @@ interface VideoInputFormProps {
 
 export function VideoInputForm(props: VideoInputFormProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [mp3AudioFile, setMp3AudioFile] = useState<File | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [status, setStatus] = useState<Status>("waiting");
   const [youtubeUrl, setYoutubeUrl] = useState<string>("");
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const audioElementRef = useRef<HTMLAudioElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newLink = e.target.value;
     setYoutubeUrl(newLink);
   };
 
-  const handleFileSelected = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleVideoFileSelected = (e: ChangeEvent<HTMLInputElement>) => {
     const { files } = e.currentTarget;
 
     if (!files) {
@@ -57,6 +69,35 @@ export function VideoInputForm(props: VideoInputFormProps) {
 
     setVideoFile(selectedFiles);
   };
+
+  const handleAudioFileSelected = (e: ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.currentTarget;
+
+    if (!files) {
+      return;
+    }
+
+    const selectedFiles = files[0];
+
+    setMp3AudioFile(selectedFiles);
+  };
+
+  const handlePlayAudio = () => {
+    if (audioElementRef.current) {
+      audioElementRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch((error) => {
+        console.error("Erro ao reproduzir áudio:", error);
+      });
+    }
+  };
+
+  const handlePauseAudio = () => {
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      setIsPlaying(false);
+    }
+  };  
 
   const convertVideoToAudio = async (video: File) => {
     console.log("Convert started.");
@@ -105,20 +146,20 @@ export function VideoInputForm(props: VideoInputFormProps) {
     return match ? match[1] : null;
   };
 
-  const handleUploadVideo = async (event: FormEvent<HTMLFormElement>) => {
+  const handleUploadFile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const prompt = promptInputRef.current?.value;
 
-    if (!videoFile && !youtubeUrl) {
+    if (!videoFile && !youtubeUrl && !mp3AudioFile) {
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Selecione um vídeo ou insira um link do YouTube válido.',
-        background: '#1F2937',
-        color: '#FFFFFF'
+        icon: "error",
+        title: "Oops...",
+        text: "Selecione um arquivo ou insira um link do YouTube válido.",
+        background: "#1F2937",
+        color: "#FFFFFF",
       });
-      setStatus('waiting')
+      setStatus("waiting");
       return;
     }
 
@@ -130,16 +171,20 @@ export function VideoInputForm(props: VideoInputFormProps) {
 
     let audioFile;
 
+    if (mp3AudioFile) {
+      audioFile = mp3AudioFile;
+    }
+
     if (youtubeUrl) {
       if (!isValidYouTubeUrl(youtubeUrl)) {
         Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Insira um link válido do YouTube.',
-          background: '#1F2937',
-          color: '#FFFFFF'
+          icon: "error",
+          title: "Oops...",
+          text: "Insira um link válido do YouTube.",
+          background: "#1F2937",
+          color: "#FFFFFF",
         });
-        setStatus('waiting')
+        setStatus("waiting");
         return;
       }
 
@@ -157,24 +202,24 @@ export function VideoInputForm(props: VideoInputFormProps) {
           console.log("Áudio do YouTube baixado com sucesso.");
         } else {
           Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Link do YouTube inválido.',
-            background: '#1F2937',
-            color: '#FFFFFF'
+            icon: "error",
+            title: "Oops...",
+            text: "Link do YouTube inválido.",
+            background: "#1F2937",
+            color: "#FFFFFF",
           });
-          setStatus("waiting")
+          setStatus("waiting");
         }
       } catch (error) {
         console.error("Erro ao buscar o link do MP3:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Ocorreu um erro ao buscar o link do MP3.',
-          background: '#1F2937',
-          color: '#FFFFFF'
+          icon: "error",
+          title: "Oops...",
+          text: "Ocorreu um erro ao buscar o link do MP3.",
+          background: "#1F2937",
+          color: "#FFFFFF",
         });
-        setStatus('waiting')
+        setStatus("waiting");
       }
     } else if (videoFile) {
       audioFile = await convertVideoToAudio(videoFile);
@@ -222,7 +267,7 @@ export function VideoInputForm(props: VideoInputFormProps) {
   }, [videoFile]);
 
   return (
-    <form onSubmit={handleUploadVideo} className="space-y-6">
+    <form onSubmit={handleUploadFile} className="space-y-6">
       <Tabs defaultValue="video" className="space-y-6">
         <TabsList className="w-full flex justify-around">
           <TabsTrigger
@@ -230,6 +275,12 @@ export function VideoInputForm(props: VideoInputFormProps) {
             className="w-1/2 data-[state=active]:bg-primary data-[state=active]:text-white"
           >
             <Video />
+          </TabsTrigger>
+          <TabsTrigger
+            value="audio"
+            className="w-1/2 data-[state=active]:bg-primary data-[state=active]:text-white"
+          >
+            <FileAudio2 />
           </TabsTrigger>
           <TabsTrigger
             value="YouTube"
@@ -240,9 +291,9 @@ export function VideoInputForm(props: VideoInputFormProps) {
         </TabsList>
 
         <TabsContent value="video">
-          <label
+          <Label
             htmlFor="video"
-            className="relative border w-full flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="relative border-[1.5px] w-full flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             {previewURL ? (
               <video
@@ -256,24 +307,84 @@ export function VideoInputForm(props: VideoInputFormProps) {
                 Selecione um vídeo
               </>
             )}
-          </label>
+          </Label>
 
           <input
             type="file"
             id="video"
             accept="video/mp4"
             className="sr-only"
-            onChange={handleFileSelected}
+            onChange={handleVideoFileSelected}
             disabled={status !== "waiting"}
           />
         </TabsContent>
-        <TabsContent value="YouTube">
+
+        <TabsContent value="audio">
+          {mp3AudioFile ? (
+            <>
+              {isPlaying ? (
+                <button
+                  type="button"
+                  onClick={handlePauseAudio}
+                  className="relative border-[1.5px] w-full flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground"
+                >
+                  <audio
+                    id="audioElement"
+                    ref={audioElementRef}
+                    src={mp3AudioFile ? URL.createObjectURL(mp3AudioFile) : ""}
+                    className="pointer-events-none absolute inset-0"
+                    autoPlay
+                  />
+                  <Pause className="w-4 h-4" />
+                  Pausar Áudio
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handlePlayAudio}
+                  className="relative border-[1.5px] w-full flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground"
+                >
+                  <audio
+                    id="audioElement"
+                    ref={audioElementRef}
+                    src={mp3AudioFile ? URL.createObjectURL(mp3AudioFile) : ""}
+                    className="pointer-events-none absolute inset-0"
+                  />
+                  <Play className="w-4 h-4" />
+                  Reproduzir Áudio
+                </button>
+              )}
+            </>
+          ) : (
+            <Label
+              htmlFor="audio"
+              className="relative border-[1.5px] w-full flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
+              <>
+                <FileVolume className="w-4 h-4" />
+                Selecione um áudio
+              </>
+            </Label>
+          )}
+          <input
+            type="file"
+            id="audio"
+            accept="audio/mpeg"
+            className="sr-only"
+            onChange={handleAudioFileSelected}
+            disabled={status !== "waiting"}
+          />
+        </TabsContent>
+
+        <TabsContent value="YouTube" className="space-y-2">
+          <Label htmlFor="youtube">Link do YouTube</Label>
           <Input
             placeholder="Cole o link de um vídeo do Youtube aqui!"
             type="url"
             className="w-full h-10"
             value={youtubeUrl}
             onChange={handleInputChange}
+            id="youtube"
           />
           <span className="text-xs text-muted-foreground italic mt-1 flex flex-col gap-1">
             <p>Para melhor exeriência use vídeos de até 10min!</p>
