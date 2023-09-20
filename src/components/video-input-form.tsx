@@ -242,8 +242,8 @@ export function VideoInputForm(props: VideoInputFormProps) {
           value={youtubeUrl}
           onChange={handleInputChange}
         />
-        <span className='block text-xs text-muted-foreground italic mt-1 flex flex-col gap-1'>
-          <p>videos maximo 10min!</p>
+        <span className='text-xs text-muted-foreground italic mt-1 flex flex-col gap-1'>
+          <p>para melhor exeriência use vídeos de até 10min</p>
           Esse processo pode demorar alguns segundos ou minutos depende do tamanho do vídeo.
         </span>
         </TabsContent>
