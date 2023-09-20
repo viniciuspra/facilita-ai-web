@@ -91,16 +91,13 @@ export function VideoInputForm(props: VideoInputFormProps) {
   };
 
   const isValidYouTubeUrl = (url: string) => {
-    const cleanUrl = url.split('&')[0];
     const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    return pattern.test(cleanUrl);
+    return pattern.test(url);
   };
 
   const extractYouTubeVideoId = (url: string) => {
-    const cleanUrl = url.split('&')[0];
-
-    const pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+).*/;
-    const match = cleanUrl.match(pattern);
+    const pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+    const match = url.match(pattern);
     return match ? match[1] : null;
   };
 
