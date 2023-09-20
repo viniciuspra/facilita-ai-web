@@ -36,30 +36,9 @@ export function App() {
   return (
       <div className='min-h-screen flex flex-col'>
         <Header/>
-        <main className='flex-1 p-6 flex gap-6'>
+        <main className='flex-1 p-6 flex gap-6 flex-col md:flex-row'>
 
-          <div className='flex flex-col flex-1 gap-4'>
-            <div className='grid grid-rows-2 gap-4 flex-1'>
-              <Textarea 
-                className='resize-none p-4 leading-relaxed'
-                placeholder='Inclua o prompt para a IA...'
-                value={input}
-                onChange={handleInputChange}
-              />
-              <Textarea 
-                className='resize-none p-4 leading-relaxed'
-                placeholder='Resultado gerado pela IA...' readOnly
-                value={completion}
-              />
-            </div>
-            <p className='text-sm text-muted-foreground'>
-              Lembre-se: você pode utilizar a variável 
-              <code className='text-violet-400'> {'{transcription}'} </code> no seu prompt para adicionar 
-              o conteúdo da transcrição do vídeo selecionado!
-            </p>
-          </div>
-
-          <aside className='w-80 space-y-6'>
+          <aside className='w-full md:w-80 space-y-6'>
 
             <VideoInputForm onVideoUploaded={setVideoId}/>
 
@@ -118,6 +97,27 @@ export function App() {
               </Button>
             </form>
           </aside>
+
+          <div className='flex flex-col flex-1 gap-4'>
+            <div className='grid grid-rows-2 gap-4 flex-1'>
+              <Textarea 
+                className='resize-none p-4 leading-relaxed h-60 md:h-auto'
+                placeholder='Inclua o prompt para a IA...'
+                value={input}
+                onChange={handleInputChange}
+              />
+              <Textarea 
+                className='resize-none p-4 leading-relaxed h-60 md:h-auto'
+                placeholder='Resultado gerado pela IA...' readOnly
+                value={completion}
+              />
+            </div>
+            <p className='text-sm text-muted-foreground'>
+              Lembre-se: você pode utilizar a variável 
+              <code className='text-violet-400'> {'{transcription}'} </code> no seu prompt para adicionar 
+              o conteúdo da transcrição do vídeo selecionado!
+            </p>
+          </div>
         </main>
       </div>
   );
