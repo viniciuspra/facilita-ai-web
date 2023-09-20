@@ -91,12 +91,12 @@ export function VideoInputForm(props: VideoInputFormProps) {
   };
 
   const isValidYouTubeUrl = (url: string) => {
-    const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    const pattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.be)\/.+/;
     return pattern.test(url);
   };
 
   const extractYouTubeVideoId = (url: string) => {
-    const pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+    const pattern = /^(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
     const match = url.match(pattern);
     return match ? match[1] : null;
   };
@@ -240,8 +240,8 @@ export function VideoInputForm(props: VideoInputFormProps) {
           onChange={handleInputChange}
         />
         <span className='text-xs text-muted-foreground italic mt-1 flex flex-col gap-1'>
-          <p>para melhor exeriência use vídeos de até 10min</p>
-          Esse processo pode demorar alguns segundos ou minutos depende do tamanho do vídeo.
+          <p>Para melhor exeriência use vídeos de até 10min!</p>
+          Esse processo pode demorar alguns segundos ou minutos dependendo do tamanho do vídeo.
         </span>
         </TabsContent>
       </Tabs>
