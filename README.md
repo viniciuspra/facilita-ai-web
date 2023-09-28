@@ -14,7 +14,7 @@
 <br>
 
 <div align="center">
- <img width="800" alt="Facilita.ai-Screenshot" src="https://github.com/viniciuspra/facilita-ai-web/assets/93842439/06459aed-4afe-459d-8ac5-e39dd52654c7">
+ <img width="800" alt="Facilita.ai-Screenshot" src="https://github.com/viniciuspra/facilita-ai-web/assets/93842439/f6cb56e8-7dd1-4b0e-89eb-f58086bb7d13">
 </div>
 
 <br>
