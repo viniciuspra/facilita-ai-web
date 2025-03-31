@@ -1,3 +1,11 @@
+⚠️ **AVISO IMPORTANTE: Este projeto não está mais em funcionamento** ⚠️
+
+A API utilizada por esta aplicação (`facilita-ai-api.onrender.com`) foi desativada e não está mais disponível. Como resultado, as funcionalidades deste projeto não funcionam mais.
+
+Este repositório permanece disponível apenas para fins de referência e estudo.
+
+---
+
 <h1 align="center">Facilita.ai</h1>
 
 <div align="center">
@@ -39,14 +47,14 @@ Para executar o projeto em sua própria máquina, siga estas etapas:
 1. Clone o repositório.
 2. Instale as dependências com `npm install`.
 3. Inicie o projeto com `npm start`.
-  
+
 ## Descrição e Funcionalidades 💡
 
 O Facilita.ai é uma plataforma que vai além da conversão de áudio e vídeo em texto. Aqui estão algumas das funcionalidades do Facilita.ai:
 
 - **Conversão de Áudio e Vídeo em Texto:** Converta facilmente arquivos de áudio .mp3, vídeos .mp4 em transcrições de texto precisas.
 
--  **Suporte a Links do YouTube:** Além de arquivos locais, o Facilita.ai aceita links do YouTube. Basta inserir o URL do vídeo do YouTube e nossa plataforma cuidará do resto, fornecendo transcrições e recursos avançados de processamento de texto.
+- **Suporte a Links do YouTube:** Além de arquivos locais, o Facilita.ai aceita links do YouTube. Basta inserir o URL do vídeo do YouTube e nossa plataforma cuidará do resto, fornecendo transcrições e recursos avançados de processamento de texto.
 
 - **Integração com ChatGPT e IA:** Use o texto resultante da conversão com a inteligência artificial. Integre-o com o ChatGPT para criar respostas, gerar conteúdo ou realizar análises avançadas.
 
